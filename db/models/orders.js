@@ -45,7 +45,7 @@ orderSchema.set("toJSON", {
   virtuals: true
 });
 orderSchema.statics.calcTotal = (items) =>
-  items.reduce((total, item) => total + item.price * item.quantity, 0);
+  items.reduce((total, item) => total + item.item.price * item.quantity, 0);
 
 // order model
 const Order = mongoose.model("Order", orderSchema);
@@ -77,8 +77,40 @@ const remove = async (id) => {
   return order.id;
 };
 
-const getByStatus = async (status) => {
-  const orders = await Order.find({ status }).populate("items");
+const getOrderByDate = async (startParam, endParam) => {
+  const orders = await Order.find({
+    createdAt: {
+      $gte: new Date(startParam),
+      $lte: new Date(endParam)
+    }
+  }).populate("items.item");
+  return orders;
+};
+
+const calcTotalSales = (orders) => {
+  const sales = { total: 0 };
+  orders.forEach((order) => {
+    const subtotal = Order.calcTotal(order.items);
+    sales.total += subtotal;
+  });
+  return sales;
+};
+
+const getByStatus = async (statusParam, startParam, endParam) => {
+  let orders;
+  if (startParam) {
+    orders = await Order.find({
+      status: statusParam,
+      createdAt: {
+        $gte: new Date(startParam),
+        $lte: new Date(endParam)
+      }
+    }).populate("items.item");
+  } else {
+    orders = await Order.find({
+      status: statusParam
+    }).populate("items.item");
+  }
   return orders;
 };
 
@@ -89,5 +121,7 @@ module.exports = {
   update,
   remove,
   getByStatus,
+  getOrderByDate,
+  calcTotalSales,
   Order
 };

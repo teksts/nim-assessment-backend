@@ -58,9 +58,29 @@ const getByCustomer = async (req, res) => {
   }
 };
 
+const getTotalSales = async (req, res) => {
+  try {
+    const orders = req.query.start
+      ? await Order.getOrderByDate(req.query.start, req.query.end)
+      : await Order.getAll();
+    if (orders) {
+      const total = Order.calcTotalSales(orders);
+      res.send(total);
+    } else {
+      res.status(404).send("Orders not found");
+    }
+  } catch (error) {
+    res.status(500).send(error);
+  }
+};
+
 const getByStatus = async (req, res) => {
   try {
-    const orders = await Order.getByStatus(req.params.status);
+    const orders = await Order.getByStatus(
+      req.query.s,
+      req.query.start,
+      req.query.end
+    );
     res.send(orders);
   } catch (error) {
     res.status(500).send(error);
@@ -70,6 +90,7 @@ const getByStatus = async (req, res) => {
 module.exports = {
   getAll,
   getOne,
+  getTotalSales,
   create,
   update,
   remove,
