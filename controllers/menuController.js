@@ -38,4 +38,13 @@ const update = async (req, res) => {
   }
 };
 
-module.exports = { getAll, getOne, create, update };
+const deleteItem = async (req, res) => {
+  try {
+    const menuItemId = await MenuItems.deleteItem(req.params.id);
+    res.send(menuItemId);
+  } catch (error) {
+    res.status(500).send(error);
+  }
+};
+
+module.exports = { getAll, getOne, create, update, deleteItem };
