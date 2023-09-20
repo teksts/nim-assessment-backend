@@ -96,8 +96,21 @@ const calcTotalSales = (orders) => {
   return sales;
 };
 
-const getByStatus = async (status) => {
-  const orders = await Order.find({ status }).populate("items");
+const getByStatus = async (statusParam, startParam, endParam) => {
+  let orders;
+  if (startParam) {
+    orders = await Order.find({
+      status: statusParam,
+      createdAt: {
+        $gte: new Date(startParam),
+        $lte: new Date(endParam)
+      }
+    }).populate("items.item");
+  } else {
+    orders = await Order.find({
+      status: statusParam
+    }).populate("items.item");
+  }
   return orders;
 };
 
