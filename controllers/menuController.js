@@ -27,4 +27,15 @@ const create = async (req, res) => {
   }
 };
 
-module.exports = { getAll, getOne, create };
+const update = async (req, res) => {
+  const updateFields = req.body;
+  updateFields.updatedAt = Date.now();
+  try {
+    const menuItem = await MenuItems.update(req.params.id, updateFields);
+    res.send(menuItem);
+  } catch (error) {
+    res.status(500).send(error);
+  }
+};
+
+module.exports = { getAll, getOne, create, update };
